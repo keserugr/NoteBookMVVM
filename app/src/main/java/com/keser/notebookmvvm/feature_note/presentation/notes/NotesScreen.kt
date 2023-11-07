@@ -11,14 +11,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.keser.notebookmvvm.feature_note.domain.util.NoteOrder
+import com.keser.notebookmvvm.feature_note.domain.util.OrderType
 import com.keser.notebookmvvm.feature_note.presentation.notes.components.NoteItem
 import com.keser.notebookmvvm.feature_note.presentation.notes.components.OrderSection
+import com.keser.notebookmvvm.feature_note.presentation.notes.components.SearchBar
 import com.keser.notebookmvvm.feature_note.presentation.util.Screen
 import kotlinx.coroutines.launch
 
@@ -32,6 +39,10 @@ fun NotesScreen(
     val state = viewModel.state.value
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+    var cachedSearchBarText by remember{ viewModel.cachedSearchBarText }
+    var notesEvent by remember {
+        mutableStateOf(NotesEvent.Order(NoteOrder.Date(OrderType.Descending)))
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -53,17 +64,20 @@ fun NotesScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Your note",
-                    style = MaterialTheme.typography.h4
-                )
+                SearchBar(
+                    hint = "Search...",
+                    cachedSearchedBarText = cachedSearchBarText,
+                    modifier = Modifier.weight(6f)
+                ) {
+                    viewModel.onEvent(NotesEvent.OrderByTitle(notesEvent.noteOrder,it))
+                }
                 IconButton(
+                    modifier = Modifier.weight(1f),
                     onClick = {
                         viewModel.onEvent(NotesEvent.ToggleOrderSection)
-                    },
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Sort,
@@ -83,6 +97,7 @@ fun NotesScreen(
                     noteOrder = state.noteOrder,
                     onOrderChange = {
                         viewModel.onEvent(NotesEvent.Order(it))
+                        notesEvent.noteOrder = it
                     }
                 )
             }

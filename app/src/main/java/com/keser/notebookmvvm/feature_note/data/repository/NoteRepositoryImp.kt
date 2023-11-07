@@ -16,6 +16,10 @@ class NoteRepositoryImp (
         return dao.getNoteById(id)
     }
 
+    override fun getNoteByTitle(title: String): Flow<List<Note>> {
+        return dao.getNoteByTitle(title)
+    }
+
     override suspend fun insertNote(note: Note) {
         return dao.insertNote(note)
     }

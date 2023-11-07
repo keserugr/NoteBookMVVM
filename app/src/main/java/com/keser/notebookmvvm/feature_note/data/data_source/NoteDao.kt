@@ -17,6 +17,9 @@ interface NoteDao {
     @Query("SELECT * FROM note WHERE id = :id")
     suspend fun getNoteById(id: Int): Note?
 
+    @Query("SELECT * FROM note WHERE title LIKE :title")
+    fun getNoteByTitle(title: String): Flow<List<Note>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: Note)
 

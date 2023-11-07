@@ -27,6 +27,8 @@ class NotesViewModel @Inject constructor(
 
     private var getNotesJob: Job? = null
 
+    var cachedSearchBarText = mutableStateOf("")
+
     init {
         getNotes(NoteOrder.Date(OrderType.Descending))
     }
@@ -38,6 +40,22 @@ class NotesViewModel @Inject constructor(
                     state.value.noteOrder.orderType == event.noteOrder.orderType
                 ) {
                     return
+                }
+                getNotes(event.noteOrder)
+            }
+
+            is NotesEvent.OrderByTitle -> {
+                if (state.value.noteOrder::class == event.noteOrder::class &&
+                    state.value.noteOrder.orderType == event.noteOrder.orderType &&
+                    state.value.searchedTitle == event.title
+                ) {
+                    return
+                }
+
+                if(event.title.isEmpty()){
+                    cachedSearchBarText.value = ""
+                }else {
+                    cachedSearchBarText.value = event.title
                 }
                 getNotes(event.noteOrder)
             }
@@ -64,14 +82,29 @@ class NotesViewModel @Inject constructor(
         }
     }
 
-    private fun getNotes(noteOrder: NoteOrder) {
+    private fun getNotes(
+        noteOrder: NoteOrder,
+    ) {
         getNotesJob?.cancel()
-        getNotesJob = noteUseCases.getNotes(noteOrder)
-            .onEach { notes ->
-                _state.value = state.value.copy(
-                    notes = notes,
-                    noteOrder = noteOrder
-                )
-            }.launchIn(viewModelScope)
+        if (cachedSearchBarText.value.isEmpty()){
+            getNotesJob = noteUseCases.getNotes(noteOrder)
+                .onEach { notes ->
+                    _state.value = state.value.copy(
+                        notes = notes,
+                        noteOrder = noteOrder,
+                        searchedTitle = ""
+                    )
+                }.launchIn(viewModelScope)
+        } else {
+            val titleSearch = "%${cachedSearchBarText.value}%"
+            getNotesJob = noteUseCases.searchNotes(noteOrder,titleSearch)
+                .onEach { notes ->
+                    _state.value = state.value.copy(
+                        notes = notes,
+                        noteOrder = noteOrder,
+                        searchedTitle = cachedSearchBarText.value
+                    )
+                }.launchIn(viewModelScope)
+        }
     }
 }

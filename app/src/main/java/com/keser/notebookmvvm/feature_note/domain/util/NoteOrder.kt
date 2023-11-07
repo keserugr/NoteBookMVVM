@@ -10,6 +10,7 @@ sealed class NoteOrder (val orderType: OrderType) {
             is Title -> Title(orderType)
             is Date -> Date(orderType)
             is Color -> Color(orderType)
+            else -> Date(orderType)
         }
     }
 }
