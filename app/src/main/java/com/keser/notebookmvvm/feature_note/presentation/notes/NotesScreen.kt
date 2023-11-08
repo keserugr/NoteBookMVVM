@@ -64,14 +64,14 @@ fun NotesScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 SearchBar(
                     hint = "Search...",
                     cachedSearchedBarText = cachedSearchBarText,
-                    modifier = Modifier.weight(6f)
+                    modifier = Modifier.weight(9f)
                 ) {
-                    viewModel.onEvent(NotesEvent.OrderByTitle(notesEvent.noteOrder,it))
+                    viewModel.onEvent(NotesEvent.Order(notesEvent.noteOrder,it))
                 }
                 IconButton(
                     modifier = Modifier.weight(1f),

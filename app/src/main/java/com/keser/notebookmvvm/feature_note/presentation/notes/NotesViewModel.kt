@@ -37,15 +37,6 @@ class NotesViewModel @Inject constructor(
         when (event) {
             is NotesEvent.Order -> {
                 if (state.value.noteOrder::class == event.noteOrder::class &&
-                    state.value.noteOrder.orderType == event.noteOrder.orderType
-                ) {
-                    return
-                }
-                getNotes(event.noteOrder)
-            }
-
-            is NotesEvent.OrderByTitle -> {
-                if (state.value.noteOrder::class == event.noteOrder::class &&
                     state.value.noteOrder.orderType == event.noteOrder.orderType &&
                     state.value.searchedTitle == event.title
                 ) {
@@ -57,6 +48,7 @@ class NotesViewModel @Inject constructor(
                 }else {
                     cachedSearchBarText.value = event.title
                 }
+
                 getNotes(event.noteOrder)
             }
 
